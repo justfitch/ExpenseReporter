@@ -51,7 +51,6 @@ public class EmployeeDAOPostgresImpl implements EmployeeDAO{
 
             return employee;
         } catch (SQLException e) {
-            e.printStackTrace();
             return null;
         }
     }

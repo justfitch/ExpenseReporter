@@ -36,18 +36,23 @@ public class WebAPP {
         app.post("/expenses", context -> {
             String body = context.body();
             Expense expense = gson.fromJson(body, Expense.class);
-            context.status(201);
-            context.result(gson.toJson(expenseService.createExpense(expense)));
+            if (expense.getAmount() > 0) {
+                context.status(201);
+                context.result(gson.toJson(expenseService.createExpense(expense)));
+            } else {
+                context.status(400);
+                context.result("Expense cannot be zero or negative. Unless you want to write us a check...");
+            }
         });
 
         //READ/GET ONE EMPLOYEE
         app.get("/employees/{id}", context -> {
             int id = Integer.parseInt(context.pathParam("id"));
 
-            try {
-                String employeeJSON = gson.toJson(employeeService.getEmployeeDetails(id));
+            String employeeJSON = gson.toJson(employeeService.getEmployeeDetails(id));
+            if (!employeeJSON.equals("null")) {
                 context.result(employeeJSON);
-            } catch (Exception e) {                                     //Why can't I made this ResourceNotFound?????
+            } else {
                 context.status(404);
                 context.result("User ID " + id + " was not found");
             }
@@ -57,20 +62,25 @@ public class WebAPP {
         app.get("/employees", context -> {
             List<Employee> allEmployees = employeeService.getAllEmployees();
             String allEmployeesJson = gson.toJson(allEmployees);
-            context.result(allEmployeesJson);
+            if(allEmployees.size() != 0){
+                context.result(allEmployeesJson);
+            } else {
+                context.status(404);
+                context.result("There are no registered employees to list");
+            }
         });
 
         //GET AN EXPENSE BY EXPENSENUMBER
         app.get("/expenses/{expenseNumber}", context -> {
             int expenseNumber = Integer.parseInt(context.pathParam("expenseNumber"));
 
-            try {
                 String expenseJSON = gson.toJson(expenseService.getExpenseDetails(expenseNumber));
-                context.result(expenseJSON);
-            } catch (Exception e) {
-                context.status(404);
-                context.result("Expense Number " + expenseNumber + " not found");
-            }
+                if (!expenseJSON.equals("null")) {
+                    context.result(expenseJSON);
+                } else {
+                    context.status(404);
+                    context.result("Expense Number " + expenseNumber + " not found");
+                }
         });
 
         //GET ALL EXPENSES BY STATUS (All if no parameter entered)
@@ -117,8 +127,11 @@ public class WebAPP {
                 String body = context.body();
                 Expense expense = gson.fromJson(body, Expense.class);
                 expense.setExpenseNumber(expenseNumber);
-                expenseService.updateExpense(expense);
-                context.result("Expense Report Updated");
+                if (expenseService.updateExpense(expense) != null) {
+                    context.result("Expense Report Updated");
+                } else {
+                    context.result("Expense number " + expenseNumber + " cannot be updated");
+                }
             } catch (JsonSyntaxException e) {
                 context.status(404);
                 context.result("Expense number " + expenseNumber + " was not found");
@@ -128,24 +141,35 @@ public class WebAPP {
         //PATCH - Update Expense to Approved
         app.patch("/expenses/{expenseNumber}/approve", context -> {
             int expenseNumber = Integer.parseInt(context.pathParam("expenseNumber"));
-            Expense expense = expenseService.approveExpense(expenseNumber);
-            if (expense == null) {
+            try {
+                Expense expense = expenseService.approveExpense(expenseNumber);
+                if (expense != null) {
+                    context.result("Expense number " + expenseNumber + " approved.");
+                } else {
+                    context.status(404);
+                    context.result("Expense number " + expenseNumber + " cannot be updated.");
+                }
+            } catch (Exception e) {
                 context.status(404);
-                context.result("Expense number " + expenseNumber + " was not found.");
-            } else {
-                context.result("Expense number " + expenseNumber + " approved.");
+                context.result("Expense number " + expenseNumber + " was not found");
             }
         });
 
             //PATCH - Update Expense to Denied
             app.patch("/expenses/{expenseNumber}/deny", context -> {
                 int expenseNumber = Integer.parseInt(context.pathParam("expenseNumber"));
-                Expense expense = expenseService.denyExpense(expenseNumber);
-                if (expense == null){
+                try {
+                    Expense expense = expenseService.denyExpense(expenseNumber);
+                    if (expense != null){
+                        context.result("Expense number " + expenseNumber + " denied.");
+
+                    } else {
+                        context.status(404);
+                        context.result("Expense number " + expenseNumber + " cannot be updated.");
+                    }
+                } catch (Exception e) {
                     context.status(404);
-                    context.result("Expense number " + expenseNumber + " was not found.");
-                } else {
-                    context.result("Expense number " + expenseNumber + " denied.");
+                    context.result("Expense number " + expenseNumber + " was not found");
                 }
             });
 
@@ -166,13 +190,18 @@ public class WebAPP {
         //DELETE EXPENSE
         app.delete("/expenses/{expenseNumber}", context -> {
             int expenseNumber = Integer.parseInt(context.pathParam("expenseNumber"));
-            boolean result = expenseService.deleteExpense(expenseNumber);
-            if (result){
-                context.status(204);
-                context.result("Expense deleted");
-            } else {
-                context.status(500);
-                context.result("Expense number " + expenseNumber + " not found.");
+            try {
+                boolean result = expenseService.deleteExpense(expenseNumber);
+                if (result){
+                    context.status(204);
+                    context.result("Expense deleted");
+                } else {
+                    context.status(500);
+                    context.result("Expense number " + expenseNumber + " could not be deleted.");
+                }
+            } catch (Exception e) {
+                context.status(404);
+                context.result("Expense number " + expenseNumber + " was not found");
             }
         });
 

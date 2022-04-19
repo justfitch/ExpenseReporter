@@ -27,27 +27,46 @@ public class ExpenseServiceImpl implements ExpenseService{
 
     @Override
     public Expense updateExpense(Expense expense) {
-        return expenseDAO.updateExpense(expense);
+        int expenseNumber = expense.getExpenseNumber();
+        Expense statusCheck = expenseDAO.getExpenseDetails(expenseNumber);
+        if (statusCheck.getStatus().equals("Pending")) {
+            return expenseDAO.updateExpense(expense);
+        } else {
+            return null;
+        }
     }
 
     @Override
     public Expense approveExpense(int expenseNumber) {
         Expense expense = expenseDAO.getExpenseDetails(expenseNumber);
-        expense.setStatus("Approved");
-        expenseDAO.updateExpense(expense);
-        return expense;
+        if (expense.getStatus().equals("Pending")) {
+            expense.setStatus("Approved");
+            expenseDAO.updateExpense(expense);
+            return expense;
+        } else {
+            return null;
+        }
     }
 
     @Override
     public Expense denyExpense(int expenseNumber) {
         Expense expense = expenseDAO.getExpenseDetails(expenseNumber);
-        expense.setStatus("Denied");
-        expenseDAO.updateExpense(expense);
-        return expense;
+        if (expense.getStatus().equals("Pending")) {
+            expense.setStatus("Denied");
+            expenseDAO.updateExpense(expense);
+            return expense;
+        } else {
+            return null;
+        }
     }
 
     @Override
     public boolean deleteExpense(int expenseNumber) {
-        return expenseDAO.deleteExpense(expenseNumber);
+        Expense expense = expenseDAO.getExpenseDetails(expenseNumber);
+        if (expense.getStatus() == "Pending") {
+            return expenseDAO.deleteExpense(expenseNumber);
+        } else {
+            return false;
+        }
     }
 }
