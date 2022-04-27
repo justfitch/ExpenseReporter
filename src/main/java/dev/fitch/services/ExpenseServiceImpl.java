@@ -63,7 +63,7 @@ public class ExpenseServiceImpl implements ExpenseService{
     @Override
     public boolean deleteExpense(int expenseNumber) {
         Expense expense = expenseDAO.getExpenseDetails(expenseNumber);
-        if (expense.getStatus() == "Pending") {
+        if (expense.getStatus().equals("Pending")) {
             return expenseDAO.deleteExpense(expenseNumber);
         } else {
             return false;

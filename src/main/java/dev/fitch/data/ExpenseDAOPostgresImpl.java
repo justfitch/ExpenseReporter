@@ -2,6 +2,8 @@ package dev.fitch.data;
 
 import dev.fitch.entities.Expense;
 import dev.fitch.utilities.ConnectionUtil;
+import dev.fitch.utilities.LogLevel;
+import dev.fitch.utilities.Logger;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -28,8 +30,9 @@ public class ExpenseDAOPostgresImpl implements ExpenseDAO{
             expense.setExpenseNumber(rs.getInt("expense_number"));
 
             return expense;
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException | NullPointerException e) {
+            System.out.println(e.getMessage());
+            Logger.log(e.getMessage(), LogLevel.ERROR);
             return null;
         }
     }
@@ -54,8 +57,9 @@ public class ExpenseDAOPostgresImpl implements ExpenseDAO{
             expense.setStatus(rs.getString("status"));
 
             return expense;
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException | NullPointerException e) {
+            System.out.println(e.getMessage());
+            Logger.log(e.getMessage(), LogLevel.ERROR);
             return null;
         }
     }
@@ -68,7 +72,7 @@ public class ExpenseDAOPostgresImpl implements ExpenseDAO{
             PreparedStatement ps = conn.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
 
-            List<Expense> expenses = new ArrayList();
+            List<Expense> expenses = new ArrayList<>();
             while (rs.next()){
                 Expense expense = new Expense();
 
@@ -82,8 +86,9 @@ public class ExpenseDAOPostgresImpl implements ExpenseDAO{
             }
 
             return expenses;
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException | NullPointerException e) {
+            System.out.println(e.getMessage());
+            Logger.log(e.getMessage(), LogLevel.ERROR);
             return null;
         }
     }
@@ -103,8 +108,9 @@ public class ExpenseDAOPostgresImpl implements ExpenseDAO{
             ps.executeUpdate();
 
             return expense;
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException | NullPointerException e) {
+            System.out.println(e.getMessage());
+            Logger.log(e.getMessage(), LogLevel.ERROR);
             return null;
         }
     }
@@ -118,10 +124,10 @@ public class ExpenseDAOPostgresImpl implements ExpenseDAO{
             ps.setInt(1, expenseNumber);
 
             ps.execute();
-
             return true;
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException | NullPointerException e) {
+            System.out.println(e.getMessage());
+            Logger.log(e.getMessage(), LogLevel.ERROR);
             return false;
         }
     }

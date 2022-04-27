@@ -130,6 +130,7 @@ public class WebAPP {
                 if (expenseService.updateExpense(expense) != null) {
                     context.result("Expense Report Updated");
                 } else {
+                    context.status(403);
                     context.result("Expense number " + expenseNumber + " cannot be updated");
                 }
             } catch (JsonSyntaxException e) {
@@ -146,7 +147,7 @@ public class WebAPP {
                 if (expense != null) {
                     context.result("Expense number " + expenseNumber + " approved.");
                 } else {
-                    context.status(404);
+                    context.status(403);
                     context.result("Expense number " + expenseNumber + " cannot be updated.");
                 }
             } catch (Exception e) {
@@ -164,7 +165,7 @@ public class WebAPP {
                         context.result("Expense number " + expenseNumber + " denied.");
 
                     } else {
-                        context.status(404);
+                        context.status(403);
                         context.result("Expense number " + expenseNumber + " cannot be updated.");
                     }
                 } catch (Exception e) {
@@ -177,13 +178,22 @@ public class WebAPP {
         //DELETE EMPLOYEE
         app.delete("/employees/{id}", context -> {
             int id = Integer.parseInt(context.pathParam("id"));
-            boolean result = employeeService.deleteEmployee(id);
-            if (result) {
-                context.status(204);
-                context.result("Employee record deleted");
+
+            if (employeeService.getEmployeeDetails(id) == null) {
+                context.status(404);
+                context.result("Employee ID not found");
             } else {
-                context.status(500);
-                context.result("Employee id " + id + " not found");
+                boolean result = employeeService.deleteEmployee(id);
+
+                if (result) {
+                    context.status(200);
+                    context.result("Employee record deleted");
+                    System.out.println("App: True");
+                } else {
+                    context.status(500);
+                    context.result("Employee id " + id + " could not be deleted");
+                    System.out.println("App: False");
+                }
             }
         });
 
@@ -193,10 +203,10 @@ public class WebAPP {
             try {
                 boolean result = expenseService.deleteExpense(expenseNumber);
                 if (result){
-                    context.status(204);
+                    context.status(200);
                     context.result("Expense deleted");
                 } else {
-                    context.status(500);
+                    context.status(403);
                     context.result("Expense number " + expenseNumber + " could not be deleted.");
                 }
             } catch (Exception e) {
@@ -206,9 +216,33 @@ public class WebAPP {
         });
 
         //NESTED
-        app.get("/employees{id}/expenses", context -> {
+        //GET ALL EXPENSES FOR A PARTICULAR USER
+        app.get("/employees/{id}/expenses", context -> {
             int id = Integer.parseInt(context.pathParam("id"));
-            //I NEED TO CREATE A METHOD IN EXPENSE SERVICE TO GET ALL EXPENSES BY EMPLOYEE ID
+            List<Expense> allExpenses = expenseService.getAllExpenses();
+            List<Expense> requestedId = new ArrayList();
+            for (Expense expense : allExpenses) {
+                if (expense.getEmployeeId() == (id)) {
+                    requestedId.add(expense);
+                }
+            }
+            String resultsJson = gson.toJson(requestedId);
+            context.result(resultsJson);
+        });
+
+        //POST AND EXPENSE FOR SPECIFIED EMPLOYEE - IF ID IN JSON DOESN'T MATCH, PATH {ID} OVERRIDES
+        app.post("employees/{id}/expenses", context -> {
+            int id = Integer.parseInt(context.pathParam("id"));
+            String body = context.body();
+            Expense expense = gson.fromJson(body, Expense.class);
+            expense.setEmployeeId(id);
+            if (expense.getAmount() > 0) {
+                context.status(201);
+                context.result(gson.toJson(expenseService.createExpense(expense)));
+            } else {
+                context.status(400);
+                context.result("Expense cannot be zero or negative. Unless you want to write us a check...");
+            }
         });
     }
 }

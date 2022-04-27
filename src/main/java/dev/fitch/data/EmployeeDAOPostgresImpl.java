@@ -2,13 +2,17 @@ package dev.fitch.data;
 
 import dev.fitch.entities.Employee;
 import dev.fitch.utilities.ConnectionUtil;
+import dev.fitch.utilities.LogLevel;
+import dev.fitch.utilities.Logger;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EmployeeDAOPostgresImpl implements EmployeeDAO{
 
+
+
+public class EmployeeDAOPostgresImpl implements EmployeeDAO{
 
     @Override
     public Employee createEmployee(Employee employee) {
@@ -27,7 +31,8 @@ public class EmployeeDAOPostgresImpl implements EmployeeDAO{
             employee.setId(rs.getInt("id")); //SET ID IN EMPLOYEE OBJECT TO GENERATED KEY
             return employee;
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
+            Logger.log(e.getMessage(), LogLevel.ERROR);
             return null;
         }
     }
@@ -51,6 +56,8 @@ public class EmployeeDAOPostgresImpl implements EmployeeDAO{
 
             return employee;
         } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            Logger.log(e.getMessage(), LogLevel.ERROR);
             return null;
         }
     }
@@ -78,7 +85,8 @@ public class EmployeeDAOPostgresImpl implements EmployeeDAO{
 
             return employees;
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
+            Logger.log(e.getMessage(), LogLevel.ERROR);
             return null;
         }
     }
@@ -98,7 +106,8 @@ public class EmployeeDAOPostgresImpl implements EmployeeDAO{
 
             return employee;
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
+            Logger.log(e.getMessage(), LogLevel.ERROR);
             return null;
         }
     }
@@ -112,10 +121,11 @@ public class EmployeeDAOPostgresImpl implements EmployeeDAO{
             ps.setInt(1, id);
 
             ps.execute();
-
+            System.out.println("employee found and deleted; return true");
             return true;
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
+            Logger.log(e.getMessage(), LogLevel.ERROR);
             return false;
         }
     }
