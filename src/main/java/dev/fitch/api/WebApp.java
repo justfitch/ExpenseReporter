@@ -2,7 +2,6 @@ package dev.fitch.api;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import dev.fitch.data.EmployeeDAOPostgresImpl;
 import dev.fitch.entities.Employee;
 import dev.fitch.entities.Expense;
 import dev.fitch.services.EmployeeService;
@@ -14,7 +13,7 @@ import io.javalin.Javalin;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WebAPP {
+public class WebApp {
 
     public static EmployeeService employeeService = new EmployeeServiceImpl();
     public static ExpenseService expenseService = new ExpenseServiceImpl();
