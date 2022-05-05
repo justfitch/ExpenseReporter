@@ -13,7 +13,7 @@ import io.javalin.Javalin;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WebApp {
+public class App {
 
     public static EmployeeService employeeService = new EmployeeServiceImpl();
     public static ExpenseService expenseService = new ExpenseServiceImpl();
@@ -21,7 +21,7 @@ public class WebApp {
 
     public static void main(String[] args) {
 
-        Javalin app = Javalin.create().start(7000);
+        Javalin app = Javalin.create().start(5000);
 
         //CREATE EMPLOYEE
         app.post("/employees", context -> {

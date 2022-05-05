@@ -13,13 +13,6 @@ public class Logger {
         // LOG LEVEL + message + TimeStamp
         String logMessage = level.name() +" " +  message + " " + new Date() + "\n";
 
-        try {
-            Files.write(Paths.get("C:\\Users\\justf\\Documents\\Revature\\Projects\\ExpenseReporter\\ExceptionLogs.logs"),
-                    logMessage.getBytes(StandardCharsets.UTF_8),
-                    StandardOpenOption.APPEND);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        System.out.println(logMessage);
     }
 }
